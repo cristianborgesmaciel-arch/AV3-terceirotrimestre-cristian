@@ -1,17 +1,16 @@
-// npm init -> cria o pacote inicial API
-// npm i express
+
 const express = require("express")
 const app = express()
 app.use(express.json())
 const port = 3000
-// npm i mysql2
+
 const db = require("./db")
 
-// ---------------------- AULA ----------------------
+
 
 app.get("/aula", async (req, res) => {
     try {
-        // realiza a consulta ao banco de dados:
+        
         const resultado = await db.pool.query("SELECT * FROM aula")
         res.status(200).json(resultado[0])
     } catch (erro) {
@@ -36,7 +35,7 @@ app.post("/aula", async (req, res) => {
 })
 
 
-// DELETE /aula/:id
+
 app.delete("/aula/:id", async (req, res) => {
     try {
         const id = req.params.id
@@ -44,13 +43,13 @@ app.delete("/aula/:id", async (req, res) => {
             "DELETE FROM aula WHERE id = ?",
             [id]
         )
-        // affectedRows = 0 -> nenhum registro com esse id
+      
         if (resultado[0].affectedRows === 0) {
             return res.status(404).json({erro: "Aula não encontrada, ID = " + id})
         }
         res.status(200).json({resultado: "Aula excluída, ID = " + id})
     } catch (erro) {
-        // a aula ainda possui horários cadastrados (chave estrangeira)
+      
         if (erro.code === "ER_ROW_IS_REFERENCED_2") {
             return res.status(409).json({
                 erro: "Não é possível excluir a aula, pois ela possui horários cadastrados. Exclua os horários primeiro."
@@ -61,10 +60,7 @@ app.delete("/aula/:id", async (req, res) => {
 })
 
 
-// ---------------------- HORÁRIO ----------------------
 
-// POST /horario
-// body: { "idaula": 1, "dia_semana": "Segunda", "ordem": 1 }
 app.post("/horario", async (req, res) => {
     try {
         const dados = req.body
@@ -76,7 +72,7 @@ app.post("/horario", async (req, res) => {
             {resultado: "Horário cadastrado, ID = " + resultado[0].insertId}
         )
     } catch (erro) {
-        // regra da chave estrangeira: a aula não existe na tabela "aula"
+        
         if (erro.code === "ER_NO_REFERENCED_ROW_2") {
             return res.status(400).json({
                 erro: "A aula com ID " + req.body.idaula + " não existe. Cadastre a aula antes de adicionar o horário."
@@ -87,7 +83,7 @@ app.post("/horario", async (req, res) => {
 })
 
 
-// GET /horario/:dia   (ex.: /horario/Segunda)
+
 app.get("/horario/:dia", async (req, res) => {
     try {
         const dia = req.params.dia
@@ -107,7 +103,7 @@ app.get("/horario/:dia", async (req, res) => {
 })
 
 
-// DELETE /horario/:id
+
 app.delete("/horario/:id", async (req, res) => {
     try {
         const id = req.params.id
